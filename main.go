@@ -15,6 +15,26 @@ type album struct{
 func getAlbums(c *gin.Context){
 	c.IndentedJSON(http.StatusOK , albums)
 }
+func addAlbum(c *gin.Context){
+	var newAlbum album
+	if err:=c.BindJSON(&newAlbum); err != nil {
+		// we have a problem
+		return
+	}
+	albums = append(albums, newAlbum)
+	c.IndentedJSON(http.StatusCreated ,newAlbum)
+}
+func getAlbumById(c *gin.Context){
+	id := c.Param("id")
+	for _ , i := range albums{
+		if i.ID == id{
+			c.IndentedJSON(http.StatusOK , i)
+			return
+		}
+	}
+	c.IndentedJSON(http.StatusNotFound , gin.H{"message":"album not found"})
+
+}
 
 // albums slice to seed record album data.
 var albums = []album{
@@ -26,7 +46,8 @@ var albums = []album{
 func main(){
 	router := gin.Default()
 	router.GET("/albums" , getAlbums)
-	
+	router.GET("/albums/:id" , getAlbumById)
+	router.POST("/albums" , addAlbum)
 	router.Run("localhost:8080")
 }
 
